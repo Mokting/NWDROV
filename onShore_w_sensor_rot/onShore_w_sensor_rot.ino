@@ -30,7 +30,7 @@ Timer tim1, tim2;
 Servo fLight, bLight, gripper, pump;
 Servo motor[8];
 char ps2Err;
-char locked = 1;
+bool locked = true;
 const char motorPin[8] = {2,3,4,5,6,7,8,9};
 
 //char axisSpeed  = 1; //3 state
@@ -38,9 +38,9 @@ char rotL = 0;              //z axis rotate left: 0 no, 1 yes
 char rotR = 0;              //z axis rotate right: 0 no, 1 yes
 char lightSel   = 0;        //0 front, 1 black
 char light[2]   = {0,0};    //4 state: Off, brightness 1, 2, 3
-char clrMotor   = 0;        //clearing motor: On, Off
+bool clrMotor   = 0;        //clearing motor: On, Off
 char pumpCtrl = 0;          //pump control: 0 Off, 1 On. Useless now as the pump will on together with clearning motor
-char invCtrl = 0;           //0 Gripper as front, 1 clearing motor as front
+bool invCtrl = 0;           //0 Gripper as front, 1 clearing motor as front
 char gM = 1;                //gripper motor: 0 down, 1 off, 2 up
 char grip = 1;              //grippe: 0 open. 1 stop, 2 close
 
@@ -151,12 +151,10 @@ void tim1Event(){
     rotR = 0;
     
     if(ps2x.ButtonPressed(PSB_START)){
-      locked += 1;
-      if(locked>1)
-        locked = 0;
+      locked=!locked;
     }
     
-    if(locked == 0){
+    if(!locked){
       //Brushless Motor Related Control
       
       if(ps2x.Button(PSB_R1)){
@@ -175,9 +173,7 @@ void tim1Event(){
       }
 
       if(ps2x.ButtonReleased(PSB_SELECT)){
-        invCtrl += 1;
-        if(invCtrl>1)
-          invCtrl = 0;
+        invCtrl = !invCtrl;
       }
     
       //Gripper Related Control
@@ -211,16 +207,12 @@ void tim1Event(){
     
       //Clearing Motor 
       if(ps2x.ButtonReleased(PSB_CIRCLE)){
-        clrMotor += 1;
-        if(clrMotor>1)
-          clrMotor = 0;
+        clrMotor = !clrMotor;
       }
     
       //Lights Related Control
       if(ps2x.ButtonReleased(PSB_TRIANGLE)){
-        lightSel += 1;
-        if(lightSel>1)
-          lightSel = 0;
+        lightSel = (~lightSel)&(B00000001);
       }
       if(ps2x.ButtonReleased(PSB_PAD_LEFT)){
         light[lightSel] -= 1;
@@ -232,7 +224,7 @@ void tim1Event(){
         if(light[lightSel]>3)
           light[lightSel] = 3;
       }
-      switch(light[lightSel]){
+    /*  switch(light[lightSel]){
         case 0:
           if(lightSel==0)
             fLStatus = 0;
@@ -257,6 +249,12 @@ void tim1Event(){
           else
             bLStatus = 3;
           break;
+      } */
+          
+      if(lightSel==0){
+        fLStatus =  light[lightSel] ;
+      }else{
+        bLStatus =  light[lightSel] ;
       }
 
       //Pump control
@@ -288,10 +286,10 @@ void tim1Event(){
 
       if(invCtrl==0){
         if(rotR == 1){
-          motorChange(pwm[0], sendPwm[0], 0);
+         /* motorChange(pwm[0], sendPwm[0], 0);
           motorChange(pwm[2], sendPwm[1], 1);
           motorChange(pwm[1], sendPwm[2], 2);
-          motorChange(pwm[3], sendPwm[3], 3);
+          motorChange(pwm[3], sendPwm[3], 3);*/
 
           pwm[2] += 200;
           pwm[1] -= 200;
@@ -310,10 +308,10 @@ void tim1Event(){
           sendPwm[3] = pwm[3];
         }
         else if(rotL == 1){
-          motorChange(pwm[1], sendPwm[0], 0);
+         /*motorChange(pwm[1], sendPwm[0], 0);
           motorChange(pwm[3], sendPwm[1], 1);
           motorChange(pwm[0], sendPwm[2], 2);
-          motorChange(pwm[2], sendPwm[3], 3);
+          motorChange(pwm[2], sendPwm[3], 3);*/
 
           pwm[3] -= 200;
           pwm[0] += 200;
@@ -331,10 +329,10 @@ void tim1Event(){
           sendPwm[3] = pwm[2];
         }
         else{
-          motorChange(motorX, sendPwm[0], 0);
+          /*motorChange(motorX, sendPwm[0], 0);
           motorChange(motorX, sendPwm[1], 1);
           motorChange(motorY, sendPwm[2], 2);
-          motorChange(motorY, sendPwm[3], 3);
+          motorChange(motorY, sendPwm[3], 3);*/
           sendPwm[0] = motorX;
           sendPwm[1] = motorX;
           sendPwm[2] = motorY;
@@ -343,30 +341,30 @@ void tim1Event(){
       }
       else{
         if(rotR == 1){
-          motorChange(map(pwm[0], 1000, 1900, 1900, 1000), map(sendPwm[0], 1000, 1900, 1900, 1000), 0);
+        /*  motorChange(map(pwm[0], 1000, 1900, 1900, 1000), map(sendPwm[0], 1000, 1900, 1900, 1000), 0);
           motorChange(pwm[2], sendPwm[1], 1);
           motorChange(pwm[1], sendPwm[2], 2);
-          motorChange(pwm[3], sendPwm[3], 3);
+          motorChange(pwm[3], sendPwm[3], 3);*/
           sendPwm[0] = pwm[0];
           sendPwm[1] = pwm[2];
           sendPwm[2] = pwm[1];
           sendPwm[3] = pwm[3];
         }
         else if(rotL == 1){
-          motorChange(pwm[1], sendPwm[0], 0);
+          /*motorChange(pwm[1], sendPwm[0], 0);
           motorChange(pwm[3], sendPwm[1], 1);
           motorChange(pwm[0], sendPwm[2], 2);
-          motorChange(pwm[2], sendPwm[3], 3);
+          motorChange(pwm[2], sendPwm[3], 3);*/
           sendPwm[0] = pwm[1];
           sendPwm[1] = pwm[3];
           sendPwm[2] = pwm[0];
           sendPwm[3] = pwm[2];
         }
         else{
-          motorChange(map(motorX, 1000, 1900, 1900, 1000), sendPwm[0], 0);
+          /*motorChange(map(motorX, 1000, 1900, 1900, 1000), sendPwm[0], 0);
           motorChange(map(motorX, 1000, 1900, 1900, 1000), sendPwm[1], 1);
           motorChange(map(motorY, 1000, 1900, 1900, 1000), sendPwm[2], 2);
-          motorChange(map(motorY, 1000, 1900, 1900, 1000), sendPwm[3], 3);
+          motorChange(map(motorY, 1000, 1900, 1900, 1000), sendPwm[3], 3);*/
           sendPwm[0] = map(motorX, 1000, 1900, 1900, 1000);
           sendPwm[1] = map(motorX, 1000, 1900, 1900, 1000);
           sendPwm[2] = map(motorY, 1000, 1900, 1900, 1000);
