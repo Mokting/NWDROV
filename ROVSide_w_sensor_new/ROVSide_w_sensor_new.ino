@@ -16,7 +16,7 @@
 #define pumpPin      (44)
 #define pressPin     (A0)
 
-//#define debug         
+#define debug
 
 Servo fLight, bLight, gripper, pump;
 Servo motor[8];
@@ -41,29 +41,61 @@ byte pwmCount = 0;
 byte gripCount = 0;
 byte gmEnable = 0;
 byte upCount = 0;
+short pumpPwm = 1450;
+byte clrMotor = 0;
+unsigned long ticks = 0;
+unsigned long old_ticks = 0;
+unsigned long offset = 0;
+bool received = false;
+byte fLstatus = 1;
+byte grip = 1;
+byte gM = 1;
+byte buff[33]; //cmd from onshore board has 22 byte, check one by one
+byte cmd[11];
+byte lastcmd[11];
 
-void allStop(void){
-  upCount++;
+short ewma(short input, short past, float alpha) {
+  return alpha * past + (1 - alpha) * input;
+}
 
-  if(upCount >= 20)
-    upCount = 20;
-    
+void sendData(void) {
+  Serial.println("Sending");
+  byte sendBuff[] = {(analogRead(pressPin)>>2)&0xFF};// - 96) * 1120 * 10197 / 102400000)
+  Serial3.write(sendBuff, 1);
+  Serial3.flush();
+}
+
+
+void cleanSpeed(void) {
+  switch (clrSpeed) {
+    case 1: {
+        pumpPwm = ewma(1380, pumpPwm, 0.9);
+        break;
+      }
+    case 2: {
+        pumpPwm = ewma(1300, pumpPwm, 0.9);
+        break;
+      }
+    default : {
+        pumpPwm = ewma(1450, pumpPwm, 0.9);
+        break;
+      }
+  }
+  pump.writeMicroseconds(pumpPwm);
+}
+
+
+void allStop(void) {
+  Serial.println("all stop");
   gripper.writeMicroseconds(1500);
 
-  /*
-  if(upCount < 20)
-    digitalWrite(gMotorPin, LOW);
-  else
-    digitalWrite(gMotorPin, HIGH);
-  */
-  
   digitalWrite(gDirPin, HIGH);
   digitalWrite(clrMotorPin, HIGH);
-   
+
   pump.writeMicroseconds(1450);
   fLight.write(1900);
   bLight.write(1900);
-  for(char i=0; i<8; i++)
+  for (char i = 0; i < 8; i++)
     motor[i].writeMicroseconds(1450);
 }
 
@@ -74,12 +106,12 @@ void setup() {
   gripper.attach(gripPin);
   pump.attach(pumpPin);
 
-  pinMode(gMotorPin, OUTPUT); 
-  pinMode(gDirPin, OUTPUT); 
-  pinMode(clrMotorPin, OUTPUT); 
-  pinMode(clrDirPin, OUTPUT); 
-  
-  for(char i=0; i<8; i++){
+  pinMode(gMotorPin, OUTPUT);
+  pinMode(gDirPin, OUTPUT);
+  pinMode(clrMotorPin, OUTPUT);
+  pinMode(clrDirPin, OUTPUT);
+
+  for (char i = 0; i < 8; i++) {
     motor[i].attach(motorPin[i]);
     motor[i].writeMicroseconds(holdPWM);
   }
@@ -91,300 +123,241 @@ void setup() {
   gripper.writeMicroseconds(1500);
   Serial.begin(9600);
   Serial3.begin(28800);
-  
-  //oneWire init for using temp sensor
-  if ( !ds.search(addr)) {
-      //no more sensors on chain, reset search
-      ds.reset_search();
-      //return -1000;
-  }
-  
-  if ( OneWire::crc8( addr, 7) != addr[7]) {
-      Serial.println("CRC is not valid!");
-      //return -1000;
-  }
-
-  if ( addr[0] != 0x10 && addr[0] != 0x28) {
-      Serial.print("Device is not recognized");
-      //return -1000;
-  }
   delay(10);
-  
-  tim1.every(50, cmdReceive);
-  manPwm.every(2, cleanSpeed);
-  gripPwm.every(1, gripCtrl);
+  manPwm.every(10, cleanSpeed);
 }
 
 void loop() {
-  tim1.update();
+  // tim1.update();
+  ticks = millis();
   manPwm.update();
-  gripPwm.update();
+  if (ticks != old_ticks) {
+    if (ticks % 150 == 0) {
+      cmdReceive();
+#ifdef debug
+      if (gM != 1 || grip != 1 || fLstatus != 1 || clrSpeed != 0) {
+        /*  Serial.print("Time:");
+          Serial.print(millis(),DEC);
+          Serial.println("\n");
+          Serial.print("light: ");
+          Serial.println(fLstatus);
+          Serial.print("grip: ");
+          Serial.println(grip);
+          Serial.print("gM: ");
+          Serial.println(gM);
+          Serial.print("clrSpeed: ");
+          Serial.println(clrSpeed);
+          Serial.print("Motor: ");
+          for(char i=0; i<8; i++){
+          Serial.print(pwm[i]);
+          Serial.print(", ");
+          if(i==7)
+          Serial.println("\n");}*/
+        //  Serial.print("start of the buffer \n\n");
+        //  for(int i=0;i<33;i++){
+        //    Serial.println(buff[i],BIN);
+        //    }
+        //   Serial.println("end of the buffer");
+        //   for(int i=0;i<11;i++){
+        //    Serial.println(cmd[i]);
+        //     }Serial.println("end of the cmd \n");
+        //Serial.println(sendStatus1,BIN);
+
+      }
+#endif
+
+
+    }
+  }
+  old_ticks = ticks;
 }
 
-void cmdExecute(void){
+void cmdExecute(void) {
   //cmd decode
-  byte bLstatus = sendStatus1 & (B00000011);
-  byte fLstatus = (sendStatus1 >> 2) & (B00000011);
-  byte grip = (sendStatus1 >> 4) & (B00000011);
-  clrSpeed = (sendStatus2 >> 3) & (B00000011);
-  byte gM = sendStatus2 & (B00000011);
-  byte clrMotor = (sendStatus2 >> 2) & (B00000001);
 
-  
-  if(gM == 0){
-    //digitalWrite(gMotorPin, LOW);
-    gmEnable = 1;
-    upCount = 0;
-    digitalWrite(gDirPin, HIGH);
-  }
-  else if(gM == 2){
-    //digitalWrite(gMotorPin, LOW);
-    gmEnable = 1;
-    upCount = 0;
-    digitalWrite(gDirPin, LOW);
-  }
-  else{
-    //digitalWrite(gMotorPin, HIGH);
-    gmEnable = 0;
-  }
-  
-  if(grip == 0)
-    gripper.writeMicroseconds(1700);
-  else if(grip == 2)
-    gripper.writeMicroseconds(1100);
-  else
-    gripper.writeMicroseconds(1500);
-
-  if(clrMotor == 1){
-      clrEnable = 1;
-     //digitalWrite(clrMotorPin, LOW);
-     pump.writeMicroseconds(1000);
+  if (sendStatus1 == 252) {
+    sendData();
+  } else {
+    fLstatus = sendStatus1 & (B00000011);
+    grip = (sendStatus1 >> 2) & (B00000011);
+    clrSpeed = (sendStatus1 >> 6) & (B00000011);
+    gM = (sendStatus1 >> 4) & (B00000011);
+    if (grip == 3 || clrSpeed == 3 || gM == 3) {
+      return;
     }
-    else{
-      clrEnable = 0;
-      //digitalWrite(clrMotorPin, HIGH);
-      pump.writeMicroseconds(1450);
-    }
-  
-  switch(fLstatus){
-    case 0:
-      fLight.writeMicroseconds(1100);
-      break;
 
-    case 1:
-      fLight.writeMicroseconds(1300);
-      break;
-      
-
-    case 2:
-      fLight.writeMicroseconds(1600);
-      break;
-
-    case 3:
-      fLight.writeMicroseconds(1900);
-      break;
   }
 
-  switch(bLstatus){
-    case 0:
-      bLight.writeMicroseconds(1100);
-      break;
-
-    case 1:
-      bLight.writeMicroseconds(1500);
-      break;
-
-    case 2:
-      bLight.writeMicroseconds(1700);
-      break;
-
-    case 3:
-      bLight.writeMicroseconds(1900);
-      break;
+  // gripper motor control
+  switch (gM) {
+    case 0: {
+        digitalWrite(gMotorPin, LOW);
+        digitalWrite(gDirPin, HIGH);
+        break;
+      }
+    case 1: {
+        digitalWrite(gMotorPin, HIGH);
+        digitalWrite(gDirPin, HIGH);
+        break;
+      }
+    case 2: {
+        digitalWrite(gMotorPin, LOW);
+        digitalWrite(gDirPin, LOW);
+        break;
+      }
   }
-  for(char i=0; i<8; i++){
-    if(pwm[i] < 1000)
-      pwm[i] = 1000;
-    else if(pwm[i] > 1900)
-      pwm[i] = 1900;
-      
+
+  // gripper control
+  switch (grip) {
+    case 0: {
+        gripper.writeMicroseconds(1700);
+        break;
+      }
+    case 1: {
+        gripper.writeMicroseconds(1500);
+        break;
+      }
+    case 2: {
+        gripper.writeMicroseconds(1100);
+        break;
+      }
+  }
+
+  // light cintrol
+  switch (fLstatus) {
+    case 0: {
+        fLight.writeMicroseconds(1100);
+        bLight.writeMicroseconds(1100);
+        break;
+      }
+    case 1: {
+        fLight.writeMicroseconds(1300);
+        bLight.writeMicroseconds(1500);
+        break;
+      }
+    case 2: {
+        fLight.writeMicroseconds(1600);
+        bLight.writeMicroseconds(1700);
+        break;
+      }
+    case 3: {
+        fLight.writeMicroseconds(1900);
+        bLight.writeMicroseconds(1900);
+        break;
+      }
+  }
+
+  // send PWM to all thruster
+  for (char i = 0; i < 8; i++) {
     motor[i].writeMicroseconds(pwm[i]);
+
   }
-  
-  #ifdef debug
-  Serial.print("fLstatus: ");
-  Serial.println(fLstatus);
-  Serial.print("bLstatus: ");
-  Serial.println(bLstatus);
-  Serial.print("grip: ");
-  Serial.println(grip);
-  Serial.print("gM: ");
-  Serial.println(gM);
-  
-  Serial.print("clrSpeed: ");
-  Serial.println(clrSpeed);
-  Serial.print("clrMotor: ");
-  Serial.println(clrMotor);
-  Serial.print("Motor: ");
-  for(char i=0; i<8; i++){
-    Serial.print(pwm[i]);
-    Serial.print(", ");
-    if(i==7)
-      Serial.println("\n");
-  
+  /*Serial.println(millis(),DEC);
+    Serial.println(pwm[4],DEC);
+    Serial.println(pwm[5],DEC);
+    Serial.println(pwm[6],DEC);
+    Serial.println(pwm[7],DEC);*/
+
+  if (pwm[4] >= 1600 || pwm[4] <= 1300) {
+    for (int i = 0; i < 11; i++) {
+      Serial.println(cmd[i]);
+    }
+
   }
-  #endif
+
 }
 
 //Very on0 command handling function. Will integrate the newly written communcation code once i come back
-void cmdReceive(void){
-  if(Serial3.available()){
-    byte buff[12]; //cmd from onshore board has 22 byte, check one by one
-    Serial3.readBytes(buff, sizeof(buff)); //correct)
-    
-    if(buff[0] == 140 && buff[1] == 255 && buff[2] == 255 && buff[11] == 150){
-      handler = 1;
-      sendData();
+void cmdReceive(void) {
+
+  byte temp = 0;
+  int start_time = 0;
+  if (Serial3.available()) {
+
+    while (Serial3.available()) {
+      Serial3.readBytes(&temp, 1);
+      for (byte i = 0; i < 32; i++) {
+        buff[i] = buff[i + 1];
+      }
+      buff[32] = temp;
+      for (byte i = 0; i < 11; i++) {
+        cmd[i] = (((buff[i * 3] & buff[i * 3 + 1]) | (buff[i * 3] & buff[i * 3 + 2]) | (buff[i * 3 + 1] & buff[i * 3 + 2])) & 0xFF);
+      }
+      if (cmd[0] == 255 && cmd[10] == 235) {
+        for (byte i = 0; i < 32; i++) {
+          buff[i] = 0;
+        }
+        break;
+      }
     }
-    else if(buff[0] == 140 && buff[11] == 150){
-      sendStatus1 = buff[1];
-      sendStatus2 = buff[2];
-      pwm[0] = map(buff[3], 0, 255, 1000, 1900);
-      pwm[1] = map(buff[4], 0, 255, 1000, 1900);
-      pwm[2] = map(buff[5], 0, 255, 1000, 1900);
-      pwm[3] = map(buff[6], 0, 255, 1000, 1900);
-      pwm[4] = map(buff[7], 0, 255, 1000, 1900);
-      pwm[5] = map(buff[8], 0, 255, 1000, 1900);
-      pwm[6] = map(buff[9], 0, 255, 1000, 1900);
-      pwm[7] = map(buff[10], 0, 255, 1000, 1900);
-      for(char i=0; i<2; i++)
-        lastBuf[i] = buff[i+1];
-      for(char i=0; i<8; i++)
-        lastPwm[i] = pwm[i];
+    //Serial3.readBytes(buff, sizeof(buff)); //correct
+
+    if (cmd[0] == 255 && cmd[10] == 235) {
+      for (byte i = 0; i < 11; i++) {
+        lastcmd[i] = cmd[i];
+      }
       handler = 0;
-    }
-    else
-      handler = 2;
-      
-    if(handler == 0){
-      on9 = 0;
-      cmdExecute();
-    }
-    else if(handler == 2){
-      #ifdef debug
-      Serial.println("\nError in decoding the command");
-      //Serial.print("diff: ");
-      //Serial.print(diff, DEC);
-      //Serial.print("\n");
-      Serial.print("\n");  
-      #endif
-      
-      sendStatus1 = lastBuf[0];
-      sendStatus2 = lastBuf[1];
-      for(char i=0; i<8; i++)
-        pwm[i] = lastPwm[i];  
-      on9++;
-      
-      byte discard;
-      for(byte i=0; i<12; i++)
-        Serial3.readBytes(&discard, 1);
+    } else {
+      Serial.println("Unable to decode");
+      handler = 1;
+
     }
 
-    //error handling
-    if(on9 >= 40){
-      on9 = 40;
-    }
-    if(on9 == 40)
-      allStop();
-  } 
-  else {
-    #ifdef debug
-    Serial.println("No Command Received!!!");
-    #endif
-    on9++;
-    
-    if(on9 >= 40)
-      on9 = 40;
-    if(on9 == 40)
-      allStop();
+
+  } else {
+    Serial.println("Missed!");
+    handler = 2;
   }
-}
 
-void sendData(void){
-  Serial3.print(analogRead(pressPin), DEC);
-  Serial3.print("@");
-  Serial3.print(getTemp());
-  Serial3.print("!");
-  Serial3.flush();
-}
-
-float getTemp(){
-  //returns the temperature from one DS18S20 in DEG Celsius
-
-  byte data[12];
-  
-  ds.reset();
-  ds.select(addr);
-  ds.write(0x44,1); // start conversion, with parasite power on at the end
-
-  byte present = ds.reset();
-  ds.select(addr);    
-  ds.write(0xBE); // Read Scratchpad
-
-  
-  for (int i = 0; i < 9; i++) { // we need 9 bytes
-    data[i] = ds.read();
+  switch (handler) {
+    case 0: {
+        sendStatus1 = cmd[1];
+        for (int i = 2; i < 11; i++) {
+          pwm[i - 2] = map(cmd[i], 0, 255, 1000, 1900);
+        }
+        cmdExecute();
+        if ((millis() - 1000) > start_time) {
+          start_time = millis();
+          on9 = 0;
+        }
+        break;
+      }
+    case 1: {
+        on9++;
+        if (on9 < 3) {
+          for (byte i = 0; i < 11; i++) {
+            //cmd[i] = lastcmd[i];
+          }
+          //if(cmd[1]==252){cmd[1]=255;}
+          //cmdExecute();
+          /*  Serial.println("end of the buffer");
+            for(int i=0;i<11;i++){
+             Serial.println(cmd[i]);
+             }Serial.println("end of the cmd \n");
+             break;
+            }*/
+          break;
+        }
+      }
+    case 2: {
+        allStop();
+        received = false;
+        offset = 0;
+        byte discard;
+        while (Serial3.available()) {
+          Serial3.readBytes(&discard, 1);
+        }
+        for (byte i = 0; i < 32; i++) {
+          buff[i] = 0;
+        }
+        break;
+      }
   }
-  
-  ds.reset_search();
-  
-  byte MSB = data[1];
-  byte LSB = data[0];
 
-  float tempRead = ((MSB << 8) | LSB); //using two's compliment
-  float TemperatureSum = tempRead / 16;
-  
-  return TemperatureSum;
 }
 
-void cleanSpeed(void){
-  // 45HZ manual generated PWM using digital Write
-  pwmCount++;
-  if(pwmCount >= 10)
-    pwmCount = 0;
-  
-  if(clrEnable == 1){
-    if(clrSpeed == 0){
-       if(pwmCount < 2)
-          digitalWrite(clrMotorPin, LOW);
-        else
-          digitalWrite(clrMotorPin, HIGH);
-    }
-    else if(clrSpeed == 1){
-      if(pwmCount < 6)
-        digitalWrite(clrMotorPin, LOW);
-      else
-        digitalWrite(clrMotorPin, HIGH);
-    }
-    else
-      digitalWrite(clrMotorPin, LOW);
- }
-  else
-    digitalWrite(clrMotorPin, HIGH);
-}
 
-void gripCtrl(void){
-  gripCount++;
-  if(gripCount >1)
-    gripCount = 0;
 
-  if(gmEnable == 1){
-    if(gripCount == 0)
-      digitalWrite(gMotorPin, LOW);
-    else
-      digitalWrite(gMotorPin, HIGH);
-  } 
-  else
-    digitalWrite(gMotorPin, HIGH);
-}
+
+
 

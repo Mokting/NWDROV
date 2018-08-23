@@ -23,27 +23,27 @@ Timer tim1, tim2;
 Servo fLight, bLight, gripper, pump;
 Servo motor[8];
 char ps2Err;
-char locked = 1;
+bool locked = true;
 const char motorPin[8] = {2,3,4,5,6,7,8,9};
 
 //char axisSpeed  = 1; //3 state
 char rotL = 0;              //z axis rotate left: 0 no, 1 yes
 char rotR = 0;              //z axis rotate right: 0 no, 1 yes
-char lightSel   = 1;        //0 front, 1 black
-char light[2]   = {0,0};    //4 state: Off, brightness 1, 2, 3
-char clrMotor   = 0;        //clearing motor: On, Off
+//char lightSel   = 1;        //0 front, 1 black
+char light   = 0;    //4 state: Off, brightness 1, 2, 3
+bool clrMotor   = false;        //clearing motor: On, Off
 char clrSpeed = 0;          //pump control: 0 Off, 1 On. Useless now as the pump will on together with clearning motor
-char invCtrl = 0;           //0 Gripper as front, 1 clearing motor as front
+bool invCtrl = false;           //0 Gripper as front, 1 clearing motor as front
 char gM = 1;                //gripper motor: 0 down, 1 off, 2 up
 char grip = 1;              //grippe: 0 open. 1 stop, 2 close
 
 short depth, ctrlX, ctrlY;  //depth: pwm for moving vertical. 
-char fLStatus = 0;          
-char bLStatus = 0;          
+//char fLStatus = 0;          
+//char bLStatus = 0;          
 short motorX = 0;           //pwm for motor 1, 3
 short motorY = 0;           //pwm for motor 0, 2
 short horRot = 0;           //y axis rotate, mapping accroding to the joystick input
-
+float TestTest = 0.0;
 //Default start up pwm of brushless is 1460, +- 30 deadband
 //Max 1900, Min 1000
 //angle bewteen brushless and boundary is 45 deg, assume -45 rotation for the coordinate
@@ -53,18 +53,29 @@ short test = 0;
 short pastIn[8] = {1450, 1450, 1450, 1450, 1450, 1450, 1450, 1450};
 
 byte sendStatus1 = 0; 
-byte sendStatus2 = 0;
+byte receive_counter = 0;
 byte infoCount = 0;
-byte cmd[12]; //22 byte for the cmd
+byte cmd[11]; //22 byte for the `
+byte buff[3];
 
+byte realcmd[33];
+byte locktime = 0;
+bool received = false;
 String temp;
 String pressure; 
 
+byte Depth = 0;
 int lol = 0;
+
+byte keyPress = 0;
+int Tested = 0;
+unsigned long ticks = 0;
+unsigned long old_ticks = 0;
 
 void setup() {
   Serial.begin(9600);
   Serial2.begin(28800);
+  //Serial.setTimeout(10);
   delay(500); //recommended delay for PS2 module start up
   
   ps2Err = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);
@@ -74,46 +85,46 @@ void setup() {
   else if(ps2Err == 2)
     Serial.println("Controller found but not accepting commands");
   
-  tim1.every(100, tim1Event);
-  tim2.every(1000, tim2Event);
+ // tim1.every(100, tim1Event);
+ // tim2.every(103, tim2Event);
 }
 
 void allStop(void){
   gM = 1; //move it upward 
   grip = 1; //stop
-  clrMotor = 0; //stop
-  fLStatus = 1; //level 1 brightness
-  bLStatus = 1; //level 1 brightness
+  //clrMotor = false; //stop
+  light= 1; 
   clrSpeed = 0; //stop
-  for(char i=0; i<8; i++)
+  for(char i=0; i<8; i++){
     sendPwm[i] = 1450;
+    pastIn[i] = 1450;}
   sendCmd();
+  
 }
 
 //function for reading ps2 controller command and sending command. Execute every 100ms
 void tim1Event(){
   if(ps2Err != 0){
     allStop();
-    return;
+    //return;
   }
-  else{   
+  else{  
     ps2x.read_gamepad();
     rotL = 0;
     rotR = 0;
-    
+   
     if(ps2x.ButtonPressed(PSB_START)){
-      locked += 1;
-      if(locked>1)
-        locked = 0;
+      keyPress |= 0x01;
+      locked = !locked;
     }
-
+    
     //if the controller is not locker, read any input from the controller and send command
-    if(locked == 0){
+    if(!locked){
       //Brushless Motor Related Control  
       if(ps2x.Button(PSB_R1)){
         delay(1);
         if(ps2x.Button(PSB_R1)){
-          if(invCtrl == 0){
+          if(!invCtrl){
             rotR = 1;
             rotL = 0;
           }
@@ -126,7 +137,7 @@ void tim1Event(){
       else if(ps2x.Button(PSB_L1)){
         delay(1);
         if(ps2x.Button(PSB_L1)){
-          if(invCtrl == 0){
+          if(!invCtrl){
             rotR = 0;
             rotL = 1;
           }
@@ -138,9 +149,8 @@ void tim1Event(){
       }
 
       if(ps2x.ButtonReleased(PSB_SELECT)){
-        invCtrl += 1;
-        if(invCtrl>1)
-          invCtrl = 0;
+        keyPress |= 0x02;
+        invCtrl = !invCtrl;
       }
     
       //Gripper Related Control
@@ -148,11 +158,13 @@ void tim1Event(){
         delay(1); //To prevent bad connection
         if(ps2x.Button(PSB_PAD_UP))
           gM = 2;
+          keyPress |= 0x04;
       }
       else if(ps2x.Button(PSB_PAD_DOWN)){
         delay(1); //To prevent bad connection
         if(ps2x.Button(PSB_PAD_DOWN))
           gM = 0;
+          keyPress |= 0x08;
       }
       else
         gM = 1;
@@ -174,53 +186,25 @@ void tim1Event(){
     
       //Clearing Motor 
       if(ps2x.ButtonReleased(PSB_CIRCLE)){
-        clrMotor += 1;
-        if(clrMotor>1)
-          clrMotor = 0;
+     //   clrMotor = !clrMotor;
       }
     
       //Lights Related Control
-      if(ps2x.ButtonReleased(PSB_TRIANGLE)){
+      // They said don't need to control the light seperately
+      /*if(ps2x.ButtonReleased(PSB_TRIANGLE)){
         lightSel += 1;
         if(lightSel>1)
           lightSel = 0;
-      }
+      }*/
       if(ps2x.ButtonReleased(PSB_PAD_LEFT)){
-        light[lightSel] -= 1;
-        if(light[lightSel]<0)
-          light[lightSel] = 0;
+        light -= 1;
+        if(light<0)
+          light = 0;
       }
       else if(ps2x.ButtonReleased(PSB_PAD_RIGHT)){
-        light[lightSel] += 1;
-        if(light[lightSel]>3)
-          light[lightSel] = 3;
-      }
-      
-      switch(light[lightSel]){
-        case 0:
-          if(lightSel==0)
-            fLStatus = 0;
-          else
-            bLStatus = 0;
-          break;
-        case 1:
-          if(lightSel==0)
-            fLStatus = 1;
-          else
-            bLStatus = 1;
-          break;
-        case 2:
-          if(lightSel==0)
-            fLStatus = 2;
-          else
-            bLStatus = 2;
-          break;
-        case 3:
-          if(lightSel==0)
-            fLStatus = 3;
-          else
-            bLStatus = 3;
-          break;
+        light += 1;
+        if(light>3)
+         light = 3;
       }
 
       //Pump control
@@ -230,54 +214,34 @@ void tim1Event(){
           clrSpeed = 0;
       }
 
-      ctrlX = map(ps2x.Analog(PSS_RX), 0, 255, 80, -80); //maybe this one can be lower, e.g. 100->80 for lower rotation rate
-      ctrlY = map(ps2x.Analog(PSS_RY), 0, 255, -100, 100); 
+      ctrlX = map(ps2x.Analog(PSS_RX), 0, 255, 25, -25); //maybe this one can be lower, e.g. 100->80 for lower rotation rate
+      ctrlY = map(ps2x.Analog(PSS_RY), 0, 255, -90, 90); 
       
-      depth = map(ps2x.Analog(PSS_LY), 0, 255, 1000, 1900);
-      horRot = map(ps2x.Analog(PSS_LX), 0, 255, 1900, 1000);
+      depth = map(ps2x.Analog(PSS_LY), 0, 255, 1270, 1630);
+    //  horRot = map(ps2x.Analog(PSS_LX), 0, 255, 1900, 1000);
       motorX = map(ctrlX*root_1_2 - ctrlY*root_1_2, -141,141, 1900, 1000);
       motorY = map(ctrlX*root_1_2 + ctrlY*root_1_2, -141, 141, 1000, 1900);
 
       //temp pwm value for left/right movement, code is on9 since this is not originally designed for this purpose
-      pwm[0] = motorX + 75;
-      pwm[1] = motorX - 75;
-      pwm[2] = motorY + 75;
-      pwm[3] = motorY - 75;
+      pwm[0] = motorX + 150;
+      pwm[1] = motorX - 150;
+      pwm[2] = motorY + 150;
+      pwm[3] = motorY - 150;
       
-      for(char i=0; i<4; i++){
-        if(pwm[i] > 1900)
-          pwm[i] = 1900;
-        else if(pwm[i] < 1000)
-          pwm[i] = 1000;
-      }
 
       if(invCtrl==0){
-        if(rotL == 1){
-          pwm[2] += 200;
-          pwm[1] -= 200;
-          
-          for(char i=0; i<4; i++){
-            if(pwm[i] > 1900)
-              pwm[i] = 1900;
-            else if(pwm[i] < 1000)
-              pwm[i] = 1000;
-          }
+        if(rotR == 1){
+          pwm[2] += (-320);
+          pwm[1] -= (-320);
           
           sendPwm[0] = pwm[0];
           sendPwm[1] = pwm[2];
           sendPwm[2] = pwm[1];
           sendPwm[3] = pwm[3];
         }
-        else if(rotR == 1){
-          pwm[3] -= 200;
-          pwm[0] += 200;
-
-          for(char i=0; i<4; i++){
-            if(pwm[i] > 1900)
-              pwm[i] = 1900;
-            else if(pwm[i] < 1000)
-              pwm[i] = 1000;
-          }
+        else if(rotL == 1){
+          pwm[3] -= (-320);
+          pwm[0] += (-320);
           
           sendPwm[0] = pwm[1];
           sendPwm[1] = pwm[3];
@@ -292,31 +256,19 @@ void tim1Event(){
         }
       }
       else{
-        if(rotL == 1){
-          pwm[2] += 200;
-          pwm[1] -= 200;
+        if(rotR == 1){
+          pwm[2] += (-320);
+          pwm[1] -= (-320);
           
-          for(char i=0; i<4; i++){
-            if(pwm[i] > 1900)
-              pwm[i] = 1900;
-            else if(pwm[i] < 1000)
-              pwm[i] = 1000;
-          }
           sendPwm[0] = pwm[0];
           sendPwm[1] = pwm[2];
           sendPwm[2] = pwm[1];
           sendPwm[3] = pwm[3];
         }
-        else if(rotR == 1){
-          pwm[3] -= 200;
-          pwm[0] += 200;
+        else if(rotL == 1){
+          pwm[3] -= (-320);
+          pwm[0] += (-320);
 
-          for(char i=0; i<4; i++){
-            if(pwm[i] > 1900)
-              pwm[i] = 1900;
-            else if(pwm[i] < 1000)
-              pwm[i] = 1000;
-          }
           
           sendPwm[0] = pwm[1];
           sendPwm[1] = pwm[3];
@@ -324,43 +276,35 @@ void tim1Event(){
           sendPwm[3] = pwm[2];
         }
         else{
-          sendPwm[0] = map(motorX, 1000, 1900, 1900, 1000);
-          sendPwm[1] = map(motorX, 1000, 1900, 1900, 1000);
-          sendPwm[2] = map(motorY, 1000, 1900, 1900, 1000);
-          sendPwm[3] = map(motorY, 1000, 1900, 1900, 1000);
+          sendPwm[2] = map(motorX, 1000, 1900, 1900, 1000);
+          sendPwm[3] = map(motorX, 1000, 1900, 1900, 1000);
+          sendPwm[0] = map(motorY, 1000, 1900, 1900, 1000);
+          sendPwm[1] = map(motorY, 1000, 1900, 1900, 1000);
         }
       }
-      
-      char rotOffset[2];
-      if(horRot > 1600){
-        rotOffset[0] = 100;
-        rotOffset[1] = -100;
-      }
-      else if(horRot < 1300){
-        rotOffset[0] = -100;
-        rotOffset[1] = 100;
-      }
-      else{
-        rotOffset[0] = 0;
-        rotOffset[1] = 0;
-      }
-      sendPwm[4] = depth + rotOffset[0];
-      sendPwm[5] = depth + rotOffset[0];
-      sendPwm[6] = depth + rotOffset[1];
-      sendPwm[7] = depth + rotOffset[1];
+
+      sendPwm[4] = depth;
+      sendPwm[5] = depth;
+      sendPwm[6] = depth;
+      sendPwm[7] = depth;
 
       
       for(byte i=0; i<8; i++){
+        if(sendPwm[i]>1900){sendPwm[i]=1900;}
+        if(sendPwm[i]<1000){sendPwm[i]=1000;}
         if(i<4){
-          sendPwm[i] = ewma(sendPwm[i], pastIn[i], 0.86);
+          sendPwm[i] = ewma(sendPwm[i], pastIn[i], 0.9);
         }
         else{
-          sendPwm[i] = ewma(sendPwm[i], pastIn[i], 0.93);
+          sendPwm[i] = ewma(sendPwm[i], pastIn[i], 0.96);
         }
         pastIn[i] = sendPwm[i];
       }
-    }    
-    sendCmd(); 
+      sendCmd(); 
+    }else if(locked){
+      allStop();
+      }    
+    
   }
 }
 
@@ -369,18 +313,12 @@ void tim2Event(){
   if(ps2Err != 0){
     Serial.println("Error! Trying to reconnect the PS2 controller....");
     ps2Err = ps2x.config_gamepad(PS2_CLK, PS2_CMD, PS2_SEL, PS2_DAT, pressures, rumble);
-    allStop();
+    //allStop();
   }
   else{
-    if(locked == 1){
-      #ifdef debug
-      Serial.println("Controller is locked! Press START to unlock");
-      #endif
-      allStop();
-    }
     #ifdef debug
-    Serial.println("Status Report: ");
-    Serial.print("Clearning Motor: ");
+   // Serial.println("Status Report: ");
+   /* Serial.print("Clearning Motor: ");
     Serial.println(clrMotor, DEC);
     Serial.print("Front Light: ");
     Serial.println(fLStatus, DEC);
@@ -419,100 +357,164 @@ void tim2Event(){
     Serial.print("rotR: ");
     Serial.println(rotR, DEC);
     Serial.println("");
-    Serial.println("");
+    Serial.println("");*/
     #endif
     Serial.print("\nLocked: ");
     Serial.println(locked, DEC);
     Serial.print("Inverted: ");
     Serial.println(invCtrl, DEC);
-    Serial.print("pressure: ");
-    Serial.println(pressure);
-    Serial.print("Temp: ");
-    Serial.println(temp);
+    Serial.print("Depth: ");
+    Serial.println(Depth, DEC);
+    //Serial.println(keyPress,BIN);
+   /* Serial.println(millis(),DEC);
+    Serial.println(cmd[6],DEC);
+    Serial.println(cmd[7],DEC);
+    Serial.println(cmd[8],DEC);
+    Serial.println(cmd[9],DEC);*/
+    Serial.println("");
+    /*if(temp=="O"){
+      Serial.println("OK");
+    }else{
+      Serial.println("FUCKED");
+      }*/
+    //Serial.print("gM: ");
+    //Serial.println(gM, DEC);
+    /*for(int i=0;i<11;i++){
+      Serial.println((cmd[i]),BIN);
+      }*/
   } 
 }
- 
-void sendCmd(void){
-  infoCount++;
 
-  if(infoCount != 15){
-    sendStatus1 = 0;
-    sendStatus2 = 0;
-
-
-    //sendStatus1: bit0,1(bLstatus); bit2,3(fLStatus); bit4,5 (gripper on/off/stop)
-    //sendStatus2: bit0,1(gripper Motor); bit2 (clearning Motor + pump on/off); bit3,4 (clearning motor speed)
-    sendStatus1 = sendStatus1 | bLStatus;
-    sendStatus1 = sendStatus1 | (fLStatus << 2);
-    sendStatus1 = sendStatus1 | (grip << 4);
-    sendStatus2 = sendStatus2 | gM;
-    sendStatus2 = sendStatus2 | (clrMotor << 2);
-    sendStatus2 = sendStatus2 | (clrSpeed << 3);
-
-    cmd[0] = 140; //header
+void sendCmd(){
+  if(receive_counter < 15){
+    sendStatus1 =  (light|(grip << 2)|(gM << 4)|(clrSpeed << 6))&(0xFF);
+    // 11111100 = 252
+    // repeatition code 
+    receive_counter ++;
+    
+    cmd[0] = 255;
     cmd[1] = sendStatus1;
-    cmd[2] = sendStatus2;
-    cmd[3] = map(sendPwm[0], 1000, 1900, 0, 255);
-    cmd[4] = map(sendPwm[1], 1000, 1900, 0, 255);
-    cmd[5] = map(sendPwm[2], 1000, 1900, 0, 255);
-    cmd[6] = map(sendPwm[3], 1000, 1900, 0, 255);
-    cmd[7] = map(sendPwm[4], 1000, 1900, 0, 255);
-    cmd[8] = map(sendPwm[5], 1000, 1900, 0, 255);
-    cmd[9] = map(sendPwm[6], 1000, 1900, 0, 255);
-    cmd[10] = map(sendPwm[7], 1000, 1900, 0, 255);
-    cmd[11] = 150; //end
-
+    cmd[2] = map(sendPwm[0], 1000, 1900, 0, 255);
+    cmd[3] = map(sendPwm[1], 1000, 1900, 0, 255);
+    cmd[4] = map(sendPwm[2], 1000, 1900, 0, 255);
+    cmd[5] = map(sendPwm[3], 1000, 1900, 0, 255);
+    cmd[6] = map(sendPwm[4], 1000, 1900, 0, 255);
+    cmd[7] = map(sendPwm[5], 1000, 1900, 0, 255);
+    cmd[8] = map(sendPwm[6], 1000, 1900, 0, 255);
+    cmd[9] = map(sendPwm[7], 1000, 1900, 0, 255);
+    cmd[10] = 235;
+    
     //confirm no data is same as the opening/ending sequence
-    for(char i=1; i<11; i++){
-      if(cmd[i] == 140)
-        cmd[i] -= 1;
-      else if(cmd[i] == 150)
-        cmd[i] -= 1;
+    for(char i=2; i<=9; i++){
+       if(cmd[i] == 255)
+        cmd[i]--;
+        if(cmd[i]==235)
+          cmd[i]--;
     }
+
+    for(char i=0;i<33;i++){
+      realcmd[i] = cmd[i/3];
+      }
+
     
-    Serial2.write(cmd, 12);
+    Serial2.write(realcmd, 33);
     Serial2.flush(); //wait for all data inside tx buffer to be sent
-    //Serial.println("DLLM");
-  }
-  else{
-    //byte oldCmd[12];
-
-    //for(char i=0; i<12; i++)
-      //oldCmd[i] = cmd[i];
+  }else{
+    //Serial.println("Function is called");
+    receive_counter = 0;
+    unsigned long timeout = millis();
     
-    infoCount = 0;
-    cmd[0] = 140;
-    cmd[1] = 255;
-    cmd[2] = 255;
-    cmd[3] = 127;
-    cmd[4] = 127;
-    cmd[5] = 127;
-    cmd[6] = 127;
-    cmd[7] = 127;
-    cmd[8] = 127;
-    cmd[9] = 127;
-    cmd[10] = 127;
-    cmd[11] = 150;
-
-    Serial2.write(cmd, 12);
-    #define DelayValue (60)
-    delay(DelayValue);
-    
-    if(Serial2.available()){
-      pressure = Serial2.readStringUntil('@');
-      temp = Serial2.readStringUntil('!');
+    cmd[0] = 255;
+    cmd[1] = 252;
+    cmd[2] = map(sendPwm[0], 1000, 1900, 0, 255);
+    cmd[3] = map(sendPwm[1], 1000, 1900, 0, 255);
+    cmd[4] = map(sendPwm[2], 1000, 1900, 0, 255);
+    cmd[5] = map(sendPwm[3], 1000, 1900, 0, 255);
+    cmd[6] = map(sendPwm[4], 1000, 1900, 0, 255);
+    cmd[7] = map(sendPwm[5], 1000, 1900, 0, 255);
+    cmd[8] = map(sendPwm[6], 1000, 1900, 0, 255);
+    cmd[9] = map(sendPwm[7], 1000, 1900, 0, 255);
+    cmd[10] = 235;
+    for(char i=0;i<33;i++){
+     realcmd[i] = cmd[i/3];
     }
+    
+    Serial2.write(realcmd, 33);
+    Serial2.flush(); //wait for all data inside tx buffer to be sent
+     while((millis()-timeout <= 200)){
+     byte temp;
+     if(Serial2.available()){
+      Serial2.readBytes(&temp,1);
+      //Serial.println(millis(),DEC);
+      //Serial.println("OKOK\n");
+      Serial.println(temp<<2,DEC);
+      Depth = (((temp<<2)-96) * 1120 * 10197 / 102400000);
+      if(Depth<0){
+         Depth = 0;
+        }
+        Serial.println(Depth,DEC);
+      locktime = 0;
+      byte discard;
+      while(Serial2.available()){
+       Serial2.readBytes(&discard, 1);
+     }
+      return;}
+     }
+
+     // Serial.println(millis(),DEC);
+      locktime++;
+    if(locktime>4){
+      locktime = 5;
+      locked = true;
+    }
+    
   }
-  
+/*   while(Serial2.available()){
+     byte temp;
+     Serial2.readBytes(&temp,1);
+     for(byte i=0;i<2;i++){
+       buff[i]=buff[i+1];
+     }
+        buff[2]=temp;
+     if(buff[0]==255&&buff[2]==254){
+      Serial.println("OKOK");
+      Depth = buff[1];
+      received = true;
+      locktime = 0;
+        break;
+      }
+      received = false;
+   }
+
+    
+   if(!received){
+    locktime++;
+    if(locktime>5){
+      locktime = 5;
+      Serial.println("locktime exceed");
+      Serial.println(buff[0]);
+      Serial.println(buff[1]);
+      Serial.println(buff[2]);
+      locked = true;
+    }
+   }*/
 }
 
 //Expotential weighted moving average
 short ewma(short input, short past, float alpha){
-  return alpha * past + (1 - alpha) * input;
+  return (short)(alpha * past + (1 - alpha) * input);
 }
 
 void loop() {
-  tim1.update();
-  tim2.update();
+   ticks = millis();
+   if(ticks!=old_ticks){
+    if(ticks%100==0){
+        tim1Event();
+      }
+     if(ticks%150==47){
+        tim2Event();
+      }
+     old_ticks = ticks;
+   }
 }
 

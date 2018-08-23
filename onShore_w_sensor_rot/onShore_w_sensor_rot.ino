@@ -32,7 +32,7 @@ Servo motor[8];
 char ps2Err;
 bool locked = true;
 const char motorPin[8] = {2,3,4,5,6,7,8,9};
-
+int HoriValue = 0;
 //char axisSpeed  = 1; //3 state
 char rotL = 0;              //z axis rotate left: 0 no, 1 yes
 char rotR = 0;              //z axis rotate right: 0 no, 1 yes
@@ -215,14 +215,16 @@ void tim1Event(){
         lightSel = (~lightSel)&(B00000001);
       }
       if(ps2x.ButtonReleased(PSB_PAD_LEFT)){
-        light[lightSel] -= 1;
+      /*  light[lightSel] -= 1;
         if(light[lightSel]<0)
-          light[lightSel] = 0;
+          light[lightSel] = 0;*/
+        HoriValue+=20;
       }
       else if(ps2x.ButtonReleased(PSB_PAD_RIGHT)){
-        light[lightSel] += 1;
+       /* light[lightSel] += 1;
         if(light[lightSel]>3)
-          light[lightSel] = 3;
+          light[lightSel] = 3;*/
+        HoriValue-=20;
       }
     /*  switch(light[lightSel]){
         case 0:
@@ -291,8 +293,8 @@ void tim1Event(){
           motorChange(pwm[1], sendPwm[2], 2);
           motorChange(pwm[3], sendPwm[3], 3);*/
 
-          pwm[2] += 200;
-          pwm[1] -= 200;
+          pwm[2] += HoriValue;
+          pwm[1] -= HoriValue;
           
           for(char i=0; i<4; i++){
             if(pwm[i] > 1900)
@@ -313,8 +315,8 @@ void tim1Event(){
           motorChange(pwm[0], sendPwm[2], 2);
           motorChange(pwm[2], sendPwm[3], 3);*/
 
-          pwm[3] -= 200;
-          pwm[0] += 200;
+          pwm[3] -= HoriValue;
+          pwm[0] += HoriValue;
 
           for(char i=0; i<4; i++){
             if(pwm[i] > 1900)
@@ -385,10 +387,10 @@ void tim1Event(){
         rotOffset[0] = 0;
         rotOffset[1] = 0;
       }
-      motor[4].writeMicroseconds(depth + rotOffset[0]);
+      /*motor[4].writeMicroseconds(depth + rotOffset[0]);
       motor[5].writeMicroseconds(depth + rotOffset[0]);
       motor[6].writeMicroseconds(depth + rotOffset[1]);
-      motor[7].writeMicroseconds(depth + rotOffset[1]);
+      motor[7].writeMicroseconds(depth + rotOffset[1]);*/
 
       sendPwm[4] = depth + rotOffset[0];
       sendPwm[5] = depth + rotOffset[0];

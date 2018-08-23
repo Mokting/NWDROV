@@ -1,0 +1,331 @@
+Aug 13, 2018 6:52:48 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool <init>
+INFO: Splash not loaded.
+Aug 13, 2018 6:52:48 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool <init>
+INFO: C:\Users\user
+Aug 13, 2018 6:52:48 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool <init>
+INFO: Windows 10
+Aug 13, 2018 6:52:48 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool setLocale
+INFO: en_US
+Aug 13, 2018 6:52:48 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 6:52:49 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 6:52:50 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool initGUI
+INFO: Set the port from the properties [usb]: COM4
+Aug 13, 2018 6:52:50 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: List reloaded.
+Aug 13, 2018 6:52:50 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: List reloaded.
+Aug 13, 2018 6:52:50 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: List reloaded.
+Aug 13, 2018 6:52:50 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool checkVersion
+INFO: Check the version: 0.77 online is version: 0.77
+Aug 13, 2018 6:53:04 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 6:53:04 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 6:53:04 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Load firmware from file.
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 6:53:05 PM java.util.prefs.WindowsPreferences <init>
+WARNING: Could not open/create prefs root node Software\JavaSoft\Prefs at root 0x80000002. Windows RegCreateKeyEx(...) returned error code 5.
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\afro_nfet.hex
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 6:53:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+java.lang.Exception: Error writing flash!
+	at avr8_burn_o_mat.AvrdudeControl.writeFlash(AvrdudeControl.java:426)
+	at de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2.run(KKMulticopterFlashTool.java:435)
+Aug 13, 2018 6:53:06 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool err
+WARNING: Error during writing flash.
+Aug 13, 2018 6:53:07 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+WARNING: error.writeflash
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\afro_nfet.hex
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 6:53:28 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 6:54:10 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing of firmware was successful.
+Aug 13, 2018 6:56:10 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 6:56:10 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 6:56:10 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Load firmware from file.
+Aug 13, 2018 7:04:04 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:04:04 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:04:04 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Load firmware from file.
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Desktop\simonK\simonk_tgy3d-master\afro_nfet.hex
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:04:13 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:04:45 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing of firmware was successful.
+Aug 13, 2018 7:05:58 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Desktop\simonK\simonk_tgy3d-master\afro_nfet.hex
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+java.lang.Exception: Error writing flash!
+	at avr8_burn_o_mat.AvrdudeControl.writeFlash(AvrdudeControl.java:426)
+	at de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2.run(KKMulticopterFlashTool.java:435)
+Aug 13, 2018 7:05:59 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool err
+WARNING: Error during writing flash.
+Aug 13, 2018 7:06:00 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+WARNING: error.writeflash
+Aug 13, 2018 7:06:08 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: No file selected to load.
+Aug 13, 2018 7:06:49 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$5 stateChanged
+INFO: changed to eepromPanel
+Aug 13, 2018 7:06:49 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:06:49 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:06:49 PM de.lazyzero.kkMulticopterFlashTool.gui.EEpromResetPanel propertyChange
+INFO: EEprom size set to: 512
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.gui.EEpromResetPanel actionPerformed
+INFO: RESET the EEprom!!!
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool flashEEprom
+INFO: WRITE the EEprom!!!
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$3 run
+INFO: stk500v2
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$3 run
+INFO: flash eeprom
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing eeprom.: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\tmp_o_eeprom.txt
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$5 stateChanged
+INFO: changed to programmingPanel
+Aug 13, 2018 7:06:54 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool err
+WARNING: Flashing of firmware aborted.
+Aug 13, 2018 7:06:56 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$3 run
+WARNING: Error writing EEPROM!
+Aug 13, 2018 7:06:58 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$5 stateChanged
+INFO: changed to eepromPanel
+Aug 13, 2018 7:06:58 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:06:58 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:06:58 PM de.lazyzero.kkMulticopterFlashTool.gui.EEpromResetPanel propertyChange
+INFO: EEprom size set to: 512
+Aug 13, 2018 7:07:03 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$5 stateChanged
+INFO: changed to programmingPanel
+Aug 13, 2018 7:07:04 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$5 stateChanged
+INFO: changed to eepromPanel
+Aug 13, 2018 7:07:04 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:07:04 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:07:04 PM de.lazyzero.kkMulticopterFlashTool.gui.EEpromResetPanel propertyChange
+INFO: EEprom size set to: 512
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.gui.EEpromResetPanel actionPerformed
+INFO: RESET the EEprom!!!
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool flashEEprom
+INFO: WRITE the EEprom!!!
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$3 run
+INFO: stk500v2
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$3 run
+INFO: flash eeprom
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing eeprom.: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\tmp_o_eeprom.txt
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool getTempFolder
+INFO: C:\Users\user\Documents\GitHub\NWDROV\BRUSHLESS\simonK\tmp\
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$5 stateChanged
+INFO: changed to programmingPanel
+Aug 13, 2018 7:07:09 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool err
+WARNING: Flashing of firmware aborted.
+Aug 13, 2018 7:07:12 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$3 run
+WARNING: Error writing EEPROM!
+Aug 13, 2018 7:09:01 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:09:01 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:09:01 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Load firmware from file.
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Desktop\simonK\simonk_tgy3d-master\afro_hv.hex
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:09:22 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:09:42 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing of firmware was successful.
+Aug 13, 2018 7:18:06 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:18:06 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:18:06 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Load firmware from file.
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Desktop\simonK\simonk_tgy3d-master\afro.hex
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:18:08 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:18:45 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing of firmware was successful.
+Aug 13, 2018 7:21:03 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:21:03 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:21:03 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Load firmware from file.
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Desktop\simonK\simonk_tgy3d-master\afro2.hex
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+java.lang.Exception: Error writing flash!
+	at avr8_burn_o_mat.AvrdudeControl.writeFlash(AvrdudeControl.java:426)
+	at de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2.run(KKMulticopterFlashTool.java:435)
+Aug 13, 2018 7:21:05 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool err
+WARNING: Error during writing flash.
+Aug 13, 2018 7:21:06 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+WARNING: error.writeflash
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Desktop\simonK\simonk_tgy3d-master\afro2.hex
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:21:17 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 7:21:39 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing of firmware was successful.
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flash the firmware file.
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: stk500v2
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: set additional Option -e
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool$2 run
+INFO: flash firmware
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check MD5: no MD5 available. Check aborted.
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.utils.Firmware getFile
+INFO: check EEPROM MD5: no MD5 available. Check aborted.
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing firmware from file.: C:\Users\user\Desktop\simonK\simonk_tgy3d-master\afro2.hex
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 10:47:11 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: 
+Aug 13, 2018 10:47:31 PM de.lazyzero.kkMulticopterFlashTool.KKMulticopterFlashTool println
+INFO: Flashing of firmware was successful.
